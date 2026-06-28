@@ -1015,15 +1015,17 @@ body.verticalMode.resultSpotlight .rname{
     const ctx = getAudioCtx();
     if (!ctx) return null;
     try {
-      if (ctx.state === "suspended") await ctx.resume();
       const t = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(0.00001, t + 0.03);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(660, t);
+      gain.gain.setValueAtTime(0.04, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
       osc.connect(gain).connect(ctx.destination);
       osc.start(t);
-      osc.stop(t + 0.04);
+      osc.stop(t + 0.09);
+      if (ctx.state === "suspended") await ctx.resume();
     } catch(e) {}
     return ctx;
   }
@@ -1866,9 +1868,9 @@ body.verticalMode.resultSpotlight .rname{
   $("clearSlotBtn").addEventListener("click", () => { if(!running) clearSlot(); });
 
   /* UI events */
-  $("startBtn").addEventListener("click", async () => {
+  $("startBtn").addEventListener("click", () => {
     // クリック時にAudioContextを起動（ブラウザはユーザー操作が必要）
-    await unlockAudio();
+    unlockAudio();
     saveStore(); closeDrawer(); startRace();
   });
   $("reseedBtn").addEventListener("click", () => { stopGallop(); closeDrawer(); reseed(); });
@@ -1878,10 +1880,10 @@ body.verticalMode.resultSpotlight .rname{
   document.addEventListener("pointerdown", warmAudio, { passive: true });
   document.addEventListener("touchend", warmAudio, { passive: true });
 
-  $("muteBtn").addEventListener("click", async () => {
+  $("muteBtn").addEventListener("click", () => {
     const nextMuted = !isMuted;
     setMuted(nextMuted);
-    if (!nextMuted) await unlockAudio();
+    if (!nextMuted) unlockAudio();
   });
   // 起動時のミュートボタン表示
   setMuted(isMuted);
@@ -1904,11 +1906,11 @@ body.verticalMode.resultSpotlight .rname{
     else if (localStorage.getItem(VERTICAL_KEY) === "1") verticalInit = true;
   }catch(e){}
   setVerticalMode(verticalInit);
-  $("verticalBtn").addEventListener("click", async () => {
+  $("verticalBtn").addEventListener("click", () => {
     const turnOn = !document.body.classList.contains("verticalMode");
     setVerticalMode(turnOn);
     if (turnOn && !running) {
-      await unlockAudio();
+      unlockAudio();
       saveStore();
       closeDrawer();
       startRace();
