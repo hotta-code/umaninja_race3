@@ -1,0 +1,1652 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>馬忍者CUP</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0b0f14;
+  --line: rgba(255,255,255,.16);
+  --text: rgba(255,255,255,.95);
+  --muted: rgba(255,255,255,.70);
+  --accent:#ff3b3b;
+  --good:#4cff9a;
+
+  /* Xで貼りやすい 1:1 */
+  --stage: min(92vw, 720px);
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+
+body{
+  margin:0;
+  color:var(--text);
+  font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Yu Gothic UI",system-ui,sans-serif;
+  background:
+    radial-gradient(1200px 700px at 40% 20%, rgba(255,255,255,.06), transparent 60%),
+    linear-gradient(rgba(0,0,0,.18), rgba(0,0,0,.55)),
+    url("umaninja_all.png") center/cover no-repeat fixed,
+    var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 14px;
+}
+
+.stage{
+  width: var(--stage);
+  aspect-ratio: 1 / 1;
+  border-radius: 26px;
+  overflow:hidden;
+  border: 1px solid rgba(255,255,255,.20);
+  box-shadow: 0 18px 60px rgba(0,0,0,.55);
+  background: rgba(0,0,0,.10);
+  backdrop-filter: blur(8px);
+}
+
+.wrap{
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+  padding: 10px;
+  min-height: 0;
+}
+
+.header{
+  background: rgba(18,22,32,.38);
+  border:1px solid var(--line);
+  border-radius: 18px;
+  padding: 10px 10px;
+  backdrop-filter: blur(10px);
+}
+
+.topRow{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+}
+
+.brand{
+  display:flex; align-items:center; gap:10px;
+  min-width: 220px;
+}
+.brand .dot{
+  width:12px; height:12px; border-radius:999px;
+  background: var(--good);
+  box-shadow: 0 0 14px rgba(76,255,154,.75);
+}
+.brandTitle{ display:flex; flex-direction:column; gap:2px; }
+.brandTitle .t{
+  font-weight: 900;
+  letter-spacing:.06em;
+  font-size: 15px;
+  line-height:1.2;
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+}
+.brandTitle .s{
+  font-size: 11px; color: var(--muted);
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+  letter-spacing:.03em;
+}
+
+.controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+button{
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.10);
+  color: var(--text);
+  padding: 10px 12px;
+  min-height: 40px;
+  font-weight: 900;
+  letter-spacing:.04em;
+  cursor:pointer;
+  transition: transform .06s ease, background .15s ease;
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+}
+button:hover{ background: rgba(255,255,255,.14); }
+button:active{ transform: translateY(1px); }
+button.primary{
+  background: rgba(255,59,59,.22);
+  border-color: rgba(255,59,59,.45);
+}
+button.primary:hover{ background: rgba(255,59,59,.30); }
+button[disabled]{ opacity:.55; cursor:not-allowed; }
+
+.hud{
+  display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+  margin-top: 8px;
+  padding: 0 2px;
+  color: var(--muted);
+  font-size: 12px;
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+}
+.hud strong{ color: var(--text); font-weight: 900; }
+.timer strong{ color: var(--accent); font-size: 14px; }
+.pill{
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.18);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 12px;
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+}
+
+/* Track */
+.track{
+  flex: 1 1 auto;
+  min-height: 0;
+  background: rgba(18,22,32,.34);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius: 20px;
+  padding: 10px;
+  backdrop-filter: blur(10px);
+  display:flex;
+  flex-direction:column;
+}
+.trackHead{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  margin-bottom: 8px;
+}
+.trackHead .ttl{
+  font-weight: 900;
+  letter-spacing:.06em;
+  font-size: 15px;
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+}
+.lanes{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+  /* 芝コースの周辺（外柵の内側）をイメージした緑のベース */
+  background:
+    linear-gradient(180deg, rgba(0,30,10,.35), rgba(0,40,15,.20)),
+    repeating-linear-gradient(45deg, rgba(46,125,57,.18) 0 6px, rgba(56,144,63,.18) 6px 12px);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 16px;
+  padding: 8px;
+}
+.lane{
+  display:grid;
+  grid-template-columns: 74px 1fr 172px; /* ← 右端に“固定の馬名欄” */
+  gap: 10px;
+  align-items:center;
+  padding: 2px 8px;
+  margin: 2px 0;
+  border-radius: 14px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+}
+.bib{
+  display:flex; align-items:center; justify-content:center;
+}
+.bib .no{
+  width: 56px; height: 34px;
+  border-radius: 14px;
+  display:grid; place-items:center;
+  border:1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.20);
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+  font-weight:900;
+  box-shadow: 0 2px 6px rgba(0,0,0,.28);
+}
+
+/* JRA枠色（馬番ボックス） — 1枠白 / 2枠黒 / 3枠赤 / 4枠青 / 5枠黄 / 6枠緑 / 7枠橙 / 8枠桃 / 9紫 / 10灰 */
+.bib .no.frame-1{ background:#ffffff; color:#0b0f14; border-color:#0b0f14; }
+.bib .no.frame-2{ background:#1a1a1a; color:#ffffff; border-color:#444; }
+.bib .no.frame-3{ background:#d92626; color:#ffffff; border-color:#ff6363; }
+.bib .no.frame-4{ background:#2c4ad9; color:#ffffff; border-color:#5a72ff; }
+.bib .no.frame-5{ background:#f0d73a; color:#0b0f14; border-color:#fff36b; }
+.bib .no.frame-6{ background:#2aa650; color:#ffffff; border-color:#5cd57a; }
+.bib .no.frame-7{ background:#ee7d2b; color:#0b0f14; border-color:#ffae5e; }
+.bib .no.frame-8{ background:#f7a8c0; color:#0b0f14; border-color:#ffd2dd; }
+.bib .no.frame-9{ background:#7d3c98; color:#ffffff; border-color:#b06bd0; }
+.bib .no.frame-10{ background:#888888; color:#ffffff; border-color:#bbb; }
+
+/* 右端固定の馬名欄 */
+.nameCell{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  padding-right: 2px;
+}
+.namePill{
+  width: 100%;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  font-family:"M PLUS Rounded 1c",system-ui,sans-serif;
+  color: rgba(255,255,255,.95);
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.32);
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+}
+
+/* レール（芝コース風・ゴールは右寄り） */
+.rail{
+  position:relative;
+  height: 64px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -2px 6px rgba(0,0,0,.30);
+  background:
+    /* 距離ティック（白い目盛） */
+    linear-gradient(90deg, rgba(255,255,255,.32) 0 2px, transparent 2px 10%,
+                          rgba(255,255,255,.32) 10% 10.3%, transparent 10.3% 20%,
+                          rgba(255,255,255,.32) 20% 20.3%, transparent 20.3% 30%,
+                          rgba(255,255,255,.32) 30% 30.3%, transparent 30.3% 40%,
+                          rgba(255,255,255,.32) 40% 40.3%, transparent 40.3% 50%,
+                          rgba(255,255,255,.32) 50% 50.3%, transparent 50.3% 60%,
+                          rgba(255,255,255,.32) 60% 60.3%, transparent 60.3% 70%,
+                          rgba(255,255,255,.32) 70% 70.3%, transparent 70.3% 80%,
+                          rgba(255,255,255,.32) 80% 80.3%, transparent 80.3% 90%,
+                          rgba(255,255,255,.32) 90% 90.3%, transparent 90.3% 100%),
+    /* 芝の濃淡縞（タテ縞でターフ感） */
+    repeating-linear-gradient(90deg, #2f7d3a 0 22px, #38903f 22px 44px),
+    /* 上下に光と影で立体感 */
+    linear-gradient(180deg, rgba(255,255,255,.14) 0%, transparent 35% 65%, rgba(0,0,0,.28) 100%);
+  overflow: visible;
+}
+.finish{
+  position:absolute; right: 12px; top: -7px; bottom:-7px;
+  width: 9px;
+  border-radius: 6px;
+  background: repeating-linear-gradient(#fff 0 6px, rgba(0,0,0,.7) 6px 12px);
+  box-shadow: 0 0 0 2px rgba(0,0,0,.25);
+  opacity: .95;
+}
+/* ゴール後に“駆け抜ける”余白 */
+.afterFinishPad{
+  position:absolute;
+  right: -44px;
+  top: 0;
+  bottom: 0;
+  width: 44px;
+  pointer-events:none;
+}
+
+.runner{
+  position:absolute; left: 10px; top: 50%;
+  width: 92px; height: 60px;
+  transform: translate(0px, -50%);
+  will-change: transform;
+  pointer-events:none;
+  --runDur: 0.16s;
+}
+.runner::before{
+  content:"";
+  position:absolute; left:-14px; top: 50%;
+  width: 16px; height: 2px;
+  background: rgba(255,255,255,.22);
+  transform: translateY(-50%);
+  border-radius: 999px;
+  animation: streak var(--runDur) linear infinite;
+  opacity:.22;
+}
+@keyframes streak{
+  from{ transform: translate(-6px,-50%); opacity:.10; }
+  to  { transform: translate(2px,-50%); opacity:.28; }
+}
+
+.horseImg{
+  width: 92px; height: 60px;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+  position: relative;
+  /* 影は地面に落ちる薄い影だけ残してスッキリ */
+  filter: drop-shadow(0 6px 6px rgba(0,0,0,.30));
+  transform-origin: 22px 36px;
+  animation: horseBob var(--runDur) linear infinite;
+}
+/* 勝負服色のリング・色帯は撤去（馬識別は番号枠色で行う） */
+.horseImg img{
+  width:100%; height:100%;
+  object-fit: contain;
+  display:block;
+  transform-origin: 28px 40px;
+  animation: horseLean var(--runDur) linear infinite;
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,.45));
+}
+@keyframes horseBob{
+  0%   { transform: translateY(0px) rotate(-1deg); }
+  50%  { transform: translateY(2px) rotate(-3deg); }
+  100% { transform: translateY(0px) rotate(-1deg); }
+}
+@keyframes horseLean{
+  /* 馬は元から右向き。scaleXは正のままにして反転しない */
+  0%   { transform: scaleX(1.02) rotate(-2deg); }
+  50%  { transform: scaleX(0.98) rotate(-4deg); }
+  100% { transform: scaleX(1.02) rotate(-2deg); }
+}
+
+/* Results */
+.resultWrap{
+  display:none;
+  background: rgba(18,22,32,.38);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius: 18px;
+  padding: 10px;
+  backdrop-filter: blur(10px);
+}
+.resultWrap.show{ display:block; }
+.resultHead{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  margin-bottom: 8px;
+}
+.resultHead .ttl{
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+  font-weight:900;
+  letter-spacing:.06em;
+  font-size: 16px;
+}
+.resultList{ display:flex; flex-direction:column; gap:6px; }
+.resultItem{
+  display:grid;
+  grid-template-columns: 64px 48px 56px 1fr 92px;
+  gap: 8px;
+  align-items:center;
+  padding: 8px 10px;
+  border-radius: 16px;
+  background: rgba(0,0,0,.18);
+  border: 1px solid rgba(255,255,255,.10);
+}
+.resultHorse{
+  width: 48px; height: 36px;
+  display:grid; place-items:center;
+  overflow: visible;
+}
+.resultHorse img{
+  width: 100%; height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.30));
+}
+.badge{
+  display:grid; place-items:center;
+  height: 34px;
+  border-radius: 12px;
+  font-weight: 900;
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+  background: rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);
+}
+.badge.rank1{ background: rgba(255,215,0,.18); border-color: rgba(255,215,0,.35); }
+.badge.rank2{ background: rgba(192,192,192,.16); border-color: rgba(192,192,192,.32); }
+.badge.rank3{ background: rgba(205,127,50,.16); border-color: rgba(205,127,50,.32); }
+.miniNo{
+  display:grid; place-items:center;
+  height: 34px;
+  border-radius: 12px;
+  font-weight: 900;
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+  background: rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.14);
+}
+/* 着順結果の馬番号にも枠色を反映 */
+.miniNo.frame-1{ background:#ffffff; color:#0b0f14; border-color:#0b0f14; }
+.miniNo.frame-2{ background:#1a1a1a; color:#ffffff; border-color:#444; }
+.miniNo.frame-3{ background:#d92626; color:#ffffff; border-color:#ff6363; }
+.miniNo.frame-4{ background:#2c4ad9; color:#ffffff; border-color:#5a72ff; }
+.miniNo.frame-5{ background:#f0d73a; color:#0b0f14; border-color:#fff36b; }
+.miniNo.frame-6{ background:#2aa650; color:#ffffff; border-color:#5cd57a; }
+.miniNo.frame-7{ background:#ee7d2b; color:#0b0f14; border-color:#ffae5e; }
+.miniNo.frame-8{ background:#f7a8c0; color:#0b0f14; border-color:#ffd2dd; }
+.miniNo.frame-9{ background:#7d3c98; color:#ffffff; border-color:#b06bd0; }
+.miniNo.frame-10{ background:#888888; color:#ffffff; border-color:#bbb; }
+.rname{ font-weight: 900; letter-spacing:.02em; }
+.rtime{
+  text-align:right;
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+  font-weight: 900;
+  color: rgba(255,255,255,.88);
+}
+
+/* overlay */
+.overlayDon{
+  position: fixed;
+  inset: 0;
+  display:none;
+  place-items:center;
+  pointer-events:none;
+  background: radial-gradient(circle at center, rgba(255,59,59,.16), transparent 60%);
+  z-index: 99;
+}
+.overlayDon.show{ display:grid; animation: flash .60s ease-out forwards; }
+@keyframes flash{
+  from{ opacity:0; }
+  40%{ opacity:1; }
+  to{ opacity:0; }
+}
+.donText{
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+  font-weight: 900;
+  letter-spacing:.06em;
+  font-size: clamp(44px, 8.5vw, 92px);
+  color: #fff;
+  text-shadow: 0 10px 30px rgba(0,0,0,.55);
+  transform: scale(.35);
+  animation: don .60s cubic-bezier(.2,1.2,.2,1) forwards;
+}
+@keyframes don{
+  0%{ transform: scale(.35) rotate(-6deg); }
+  55%{ transform: scale(1.18) rotate(2deg); }
+  100%{ transform: scale(1.0) rotate(0deg); }
+}
+.finishBounce{ animation: finishBounce .45s cubic-bezier(.2,1.3,.2,1) 1; }
+@keyframes finishBounce{
+  0%{ transform: translate(var(--tx,0px), var(--ty, -50%)) scale(1); }
+  55%{ transform: translate(var(--tx,0px), calc(var(--ty,-50%) - 6px)) scale(1.10); }
+  100%{ transform: translate(var(--tx,0px), var(--ty,-50%)) scale(1); }
+}
+
+/* drawer */
+.drawerBack{
+  position: fixed; inset:0;
+  background: rgba(0,0,0,.55);
+  display:none;
+  z-index: 80;
+}
+.drawerBack.show{ display:block; }
+.drawer{
+  position: fixed;
+  right: 12px;
+  top: 12px;
+  bottom: 12px;
+  width: min(440px, calc(100vw - 24px));
+  background: rgba(18,22,32,.90);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+  padding: 12px;
+  transform: translateX(110%);
+  transition: transform .22s ease;
+  z-index: 90;
+  backdrop-filter: blur(12px);
+  overflow:auto;
+  font-family:"M PLUS Rounded 1c",system-ui,sans-serif;
+}
+.drawer.show{ transform: translateX(0); }
+.drawerHead{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin-bottom: 10px;
+}
+.drawerHead .ttl{
+  font-weight: 900;
+  letter-spacing:.06em;
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+}
+.row{
+  display:grid;
+  grid-template-columns: 1fr 140px;
+  gap: 10px;
+  margin: 10px 0;
+  align-items:end;
+}
+.row input, .row select{
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.20);
+  color: var(--text);
+  padding: 10px 10px;
+  min-height: 40px;
+  outline:none;
+  width:100%;
+  font-family:"M PLUS Rounded 1c",system-ui,sans-serif;
+  font-weight: 700;
+}
+.label{
+  font-size: 11px;
+  color:var(--muted);
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+}
+.smallBtn{ padding: 9px 10px; min-height: 40px; }
+.names{ margin-top: 10px; display:grid; grid-template-columns: 1fr; gap: 8px; }
+.nameRow{ display:grid; grid-template-columns: 46px 1fr; gap: 10px; align-items:center; }
+.nameRow .n{
+  height: 40px;
+  display:grid; place-items:center;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.20);
+  font-weight: 900;
+  font-family:"Baloo 2","M PLUS Rounded 1c",system-ui,sans-serif;
+}
+
+/* 5レース保存 UI */
+.slotBar{
+  display:flex;
+  gap: 8px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin: 10px 0 6px;
+}
+.slotBtn{
+  padding: 8px 10px;
+  min-height: 36px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.slotBtn.active{
+  background: rgba(76,255,154,.18);
+  border-color: rgba(76,255,154,.40);
+}
+.slotActions{
+  display:flex;
+  gap: 8px;
+  flex-wrap:wrap;
+  margin-top: 8px;
+}
+
+/* ===== 追加：落馬（見た目だけ） ===== */
+.runner.fallen{
+  filter: grayscale(.25);
+  opacity: .95;
+}
+.runner.fallen .horseImg{
+  animation: none !important;
+}
+.runner.fallen .horseImg img{
+  animation: none !important;
+}
+
+/* ===== 追加：停止（見た目だけ） ===== */
+.runner.stopped{
+  opacity: .92;
+}
+.runner.stopped::before{
+  opacity: .08;
+  animation-duration: .34s;
+}
+
+/* ===== スマホ対応：縦長フル画面で表示 ===== */
+@media (max-width: 600px){
+  /* ステージは1:1ではなく画面の縦幅をいっぱいに使う */
+  body{ padding: 6px; }
+  .stage{
+    width: 100vw;
+    height: calc(100dvh - 12px); /* dvh = 動的ビューポート高さ：アドレスバー出入りに追従 */
+    max-width: 100vw;
+    aspect-ratio: auto;
+    border-radius: 14px;
+  }
+  .wrap{ padding: 8px; gap: 8px; }
+
+  /* ヘッダー：見出しを小さく、ボタンを詰める */
+  .header{ padding: 8px; border-radius: 14px; }
+  .brandTitle .t{ font-size: 13px; }
+  .brandTitle .s{ font-size: 10px; }
+  .controls{ gap: 6px; }
+  .controls button{
+    padding: 8px 10px;
+    min-height: 36px;
+    font-size: 12px;
+    border-radius: 14px;
+  }
+  .hud{ gap: 8px; font-size: 11px; }
+  .hud .pill{ padding: 4px 8px; font-size: 11px; }
+
+  /* レーン：右端の名前欄は隠して、レール幅をフル活用
+     名前は番号と一緒にレールの中央に薄く表示 */
+  .lane{
+    grid-template-columns: 44px 1fr;
+    gap: 6px;
+    padding: 1px 6px;
+    margin: 1px 0;
+  }
+  .nameCell{ display: none; }
+
+  /* 番号枠：小さめに */
+  .bib .no{
+    width: 38px; height: 28px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  /* 馬・レール：レーン数(最大10)が縦に収まるように小さめに */
+  .rail{ height: 50px; }
+  .runner{ width: 70px; height: 46px; }
+  .horseImg{ width: 70px; height: 46px; transform-origin: 18px 28px; }
+  .horseImg img{ transform-origin: 22px 30px; }
+  .finish{ width: 7px; right: 8px; }
+  .afterFinishPad{ right: -36px; width: 36px; }
+
+  /* 設定ドロワー：画面いっぱいに */
+  .drawer{
+    right: 6px; left: 6px; top: 6px; bottom: 6px;
+    width: auto;
+    max-width: none;
+    border-radius: 14px;
+  }
+  .row{ grid-template-columns: 1fr 110px; gap: 8px; }
+
+  /* 結果パネル：コンパクトに */
+  .resultWrap{ padding: 8px; }
+  .resultItem{
+    grid-template-columns: 50px 36px 42px 1fr 64px;
+    padding: 6px 6px;
+    gap: 5px;
+  }
+  .resultHorse{ width: 36px; height: 28px; }
+  .badge, .miniNo{ height: 30px; font-size: 12px; border-radius: 10px; }
+  .rname{ font-size: 13px; }
+  .rtime{ font-size: 12px; }
+}
+
+/* 極小スマホ（〜380px）：さらに詰める */
+@media (max-width: 380px){
+  .controls button{ padding: 7px 8px; font-size: 11px; min-height: 34px; }
+  .hud{ font-size: 10px; }
+  .lane{ grid-template-columns: 40px 1fr; gap: 5px; }
+  .bib .no{ width: 34px; height: 26px; font-size: 12px; }
+  .rail{ height: 44px; }
+  .runner{ width: 60px; height: 40px; }
+  .horseImg{ width: 60px; height: 40px; }
+}
+</style>
+</head>
+
+<body>
+  <div class="stage">
+    <div class="wrap">
+
+      <div class="header">
+        <div class="topRow">
+          <div class="brand">
+            <div class="dot"></div>
+            <div class="brandTitle">
+              <div class="t" id="titleView">馬忍者CUP</div>
+              <div class="s" id="subline">—</div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="primary" id="startBtn">START</button>
+            <button id="reseedBtn">抽選</button>
+            <button id="resetBtn">RESET</button>
+            <button id="muteBtn" title="サウンドON/OFF">🔊</button>
+            <button id="settingsBtn">設定</button>
+          </div>
+        </div>
+
+        <div class="hud">
+          <div class="timer">残り：<strong id="remain">15.0</strong>s</div>
+          <div>先頭：<strong id="leader">—</strong></div>
+          <div class="pill"><span id="fieldLabel">10</span>頭 / <span id="durLabel">15</span>s</div>
+          <div><strong id="statusPill">待機</strong></div>
+        </div>
+      </div>
+
+      <div class="track">
+        <div class="trackHead">
+          <div class="ttl">レース</div>
+        </div>
+        <div class="lanes" id="lanes"></div>
+      </div>
+
+      <div class="resultWrap" id="resultWrap">
+        <div class="resultHead">
+          <div class="ttl">着順確定！</div>
+          <div class="pill" id="resultMeta"></div>
+        </div>
+        <div class="resultList" id="resultList"></div>
+      </div>
+
+    </div>
+  </div>
+
+<div class="overlayDon" id="overlayDon"><div class="donText">結果発表！</div></div>
+
+<div class="drawerBack" id="drawerBack"></div>
+<div class="drawer" id="drawer">
+  <div class="drawerHead">
+    <div class="ttl">設定</div>
+    <button class="smallBtn" id="closeDrawerBtn">閉じる</button>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <div class="label">タイトル（保存）</div>
+      <input id="titleInput" placeholder="例：馬忍者スプリント杯" />
+    </div>
+    <div class="field">
+      <div class="label">頭数</div>
+      <select id="fieldSize">
+        <option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <div class="label">秒数</div>
+      <select id="duration">
+        <option value="10">10</option>
+        <option value="12">12</option>
+        <option value="15" selected>15</option>
+        <option value="20">20</option>
+      </select>
+    </div>
+    <div class="field">
+      <div class="label">アイコン</div>
+      <button class="smallBtn" id="reloadIconBtn">再読込</button>
+    </div>
+  </div>
+
+  <div class="label" style="margin-top:6px;">保存スロット（5レース分）</div>
+  <div class="slotBar" id="slotBar"></div>
+  <div class="slotActions">
+    <button class="smallBtn" id="saveSlotBtn">この組み合わせを保存</button>
+    <button class="smallBtn" id="loadSlotBtn">この組み合わせを呼び出し</button>
+    <button class="smallBtn" id="clearSlotBtn">このスロットを消す</button>
+  </div>
+
+  <div class="label" style="margin-top:12px;">馬名（保存）</div>
+  <div class="names" id="nameGrid"></div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  /* ==========================================================
+     サウンド機能（Web Audio APIで電子音を生成）
+     - playFanfare(): スタート前のトランペット風ファンファーレ
+     - startGallop()/stopGallop(): レース中の蹄音ループ
+     - ミュート切替も対応
+     ========================================================== */
+  let audioCtx = null;
+  let gallopTimer = null;
+  let isMuted = false;
+  const MUTE_KEY = "race_x_muted_v2";
+
+  function getAudioCtx(){
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      audioCtx = new AC();
+    }
+    if (audioCtx.state === "suspended") { audioCtx.resume(); }
+    return audioCtx;
+  }
+
+  function playTone(freq, startTime, duration, type = "sawtooth", gain = 0.16){
+    const ctx = getAudioCtx(); if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const env = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, startTime);
+    env.gain.setValueAtTime(0, startTime);
+    env.gain.linearRampToValueAtTime(gain, startTime + 0.02);
+    env.gain.linearRampToValueAtTime(gain * 0.7, startTime + Math.min(duration*0.4, 0.12));
+    env.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+    osc.connect(env).connect(ctx.destination);
+    osc.start(startTime);
+    osc.stop(startTime + duration + 0.02);
+  }
+
+  // ファンファーレのおおよその長さ（秒）
+  const FANFARE_LEN = 1.85;
+  function playFanfare(){
+    if (isMuted) return;
+    const ctx = getAudioCtx(); if (!ctx) return;
+    const t0 = ctx.currentTime + 0.04;
+    // C-E-G上昇 → ファンファーレ風 [周波数Hz, 開始秒, 長さ秒]
+    const notes = [
+      [392, 0.00, 0.18],  // G4
+      [523, 0.20, 0.18],  // C5
+      [659, 0.40, 0.30],  // E5
+      [392, 0.78, 0.10],  // G4
+      [523, 0.90, 0.10],  // C5
+      [659, 1.02, 0.10],  // E5
+      [784, 1.14, 0.12],  // G5
+      [1047, 1.28, 0.55], // C6（ロング）
+    ];
+    for (const [f, off, dur] of notes){
+      playTone(f, t0 + off, dur, "sawtooth", 0.16);
+      playTone(f / 2, t0 + off, dur, "triangle", 0.08); // 1オクターブ下で厚みを出す
+    }
+  }
+
+  function playHoof(startTime, gain = 0.30){
+    const ctx = getAudioCtx(); if (!ctx) return;
+
+    // ===== 低音「ドッ」：フィルター付きノイズ =====
+    const len = Math.floor(ctx.sampleRate * 0.07);
+    const buffer = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < len; i++){
+      data[i] = (Math.random()*2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.018));
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 420; // 低めの「ドッ」感を出す（700→420）
+    filter.Q.value = 5;
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(gain, startTime);
+    env.gain.exponentialRampToValueAtTime(0.001, startTime + 0.08);
+    src.connect(filter).connect(env).connect(ctx.destination);
+    src.start(startTime);
+
+    // ===== 中音「ドンッ」：短い三角波で粒立ちを出す（高音は控えめに）=====
+    const click = ctx.createOscillator();
+    const clickEnv = ctx.createGain();
+    click.type = "triangle";
+    click.frequency.setValueAtTime(380, startTime);    // 900→380（低めに）
+    click.frequency.exponentialRampToValueAtTime(110, startTime + 0.06);  // 220→110
+    clickEnv.gain.setValueAtTime(gain * 0.45, startTime);
+    clickEnv.gain.exponentialRampToValueAtTime(0.001, startTime + 0.06);
+    click.connect(clickEnv).connect(ctx.destination);
+    click.start(startTime);
+    click.stop(startTime + 0.07);
+  }
+
+  function startGallop(){
+    if (isMuted) return;
+    const ctx = getAudioCtx(); if (!ctx) return;
+    if (gallopTimer) return;
+
+    // 蹄音パターン：「ダッダ・ダッダ」を約2.8回/秒
+    let nextTime = ctx.currentTime + 0.05;
+    const stepInterval = 0.20; // 1ステップの間隔(秒)
+
+    const scheduler = () => {
+      // 先読みして音をスケジュール（ブラウザのタイマー揺れ対策）
+      while (nextTime < ctx.currentTime + 0.3){
+        playHoof(nextTime, 0.22);              // 軽い1拍目
+        playHoof(nextTime + 0.07, 0.32);       // 強い2拍目（やや大きめ）
+        nextTime += stepInterval;
+      }
+    };
+    gallopTimer = setInterval(scheduler, 80);
+    scheduler();
+  }
+
+  function stopGallop(){
+    if (gallopTimer) clearInterval(gallopTimer);
+    gallopTimer = null;
+  }
+
+  /* ===== 歓声（観衆のざわめき + 拍手 + 口笛）===== */
+  function playCheer(){
+    if (isMuted) return;
+    const ctx = getAudioCtx(); if (!ctx) return;
+
+    const t0 = ctx.currentTime + 0.02;
+    const duration = 3.2;
+
+    // 1) 観衆ベース：人の声の周波数帯（1〜2kHz）に絞ったホワイトノイズ
+    const noiseLen = Math.floor(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, noiseLen, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < noiseLen; i++){
+      data[i] = (Math.random()*2 - 1);
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 1500;
+    filter.Q.value = 0.7;
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0.0, t0);
+    env.gain.linearRampToValueAtTime(0.32, t0 + 0.20);     // 立ち上がり
+    env.gain.linearRampToValueAtTime(0.28, t0 + 1.6);      // 持続
+    env.gain.exponentialRampToValueAtTime(0.001, t0 + duration); // フェードアウト
+    src.connect(filter).connect(env).connect(ctx.destination);
+    src.start(t0);
+    src.stop(t0 + duration + 0.1);
+
+    // 2) 拍手：高音域の短いノイズバーストを散りばめる（30発）
+    for (let i = 0; i < 30; i++){
+      const clapTime = t0 + 0.10 + Math.random() * (duration - 0.4);
+      const clapBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.04), ctx.sampleRate);
+      const clapData = clapBuf.getChannelData(0);
+      for (let j = 0; j < clapData.length; j++){
+        clapData[j] = (Math.random()*2 - 1) * Math.exp(-j / (ctx.sampleRate * 0.006));
+      }
+      const clapSrc = ctx.createBufferSource();
+      clapSrc.buffer = clapBuf;
+      const clapFilter = ctx.createBiquadFilter();
+      clapFilter.type = "highpass";
+      clapFilter.frequency.value = 1800;
+      const clapEnv = ctx.createGain();
+      const clapGain = 0.05 + Math.random()*0.06;
+      clapEnv.gain.setValueAtTime(clapGain, clapTime);
+      clapEnv.gain.exponentialRampToValueAtTime(0.001, clapTime + 0.05);
+      clapSrc.connect(clapFilter).connect(clapEnv).connect(ctx.destination);
+      clapSrc.start(clapTime);
+    }
+
+    // 3) 口笛：高めの三角波で「ピューッ」を3〜4本ランダムに
+    const whistleCount = 3 + Math.floor(Math.random()*2);
+    for (let i = 0; i < whistleCount; i++){
+      const wStart = t0 + 0.30 + Math.random() * (duration - 1.0);
+      const wDur = 0.35 + Math.random() * 0.20;
+      const wFreq = 1700 + Math.random() * 800;
+      const wOsc = ctx.createOscillator();
+      const wEnv = ctx.createGain();
+      wOsc.type = "triangle";
+      wOsc.frequency.setValueAtTime(wFreq, wStart);
+      wOsc.frequency.exponentialRampToValueAtTime(wFreq * 0.65, wStart + wDur);
+      wEnv.gain.setValueAtTime(0, wStart);
+      wEnv.gain.linearRampToValueAtTime(0.05, wStart + 0.06);
+      wEnv.gain.exponentialRampToValueAtTime(0.001, wStart + wDur);
+      wOsc.connect(wEnv).connect(ctx.destination);
+      wOsc.start(wStart);
+      wOsc.stop(wStart + wDur + 0.05);
+    }
+  }
+
+  function setMuted(m){
+    isMuted = !!m;
+    try{ localStorage.setItem(MUTE_KEY, isMuted ? "1" : "0"); }catch(e){}
+    const btn = $("muteBtn");
+    if (btn) btn.textContent = isMuted ? "🔇" : "🔊";
+    if (isMuted) stopGallop();
+  }
+
+  // 起動時に保存値を読み込み
+  try{
+    const m = localStorage.getItem(MUTE_KEY);
+    if (m === "1") isMuted = true;
+  }catch(e){}
+
+  const STORE_KEY = "race_x_5slots_rightname_v2";
+  const SLOTS_KEY = "race_x_5slots_names_rightname_v2";
+  const ICON_FILE = "horse_icon_transparent.png"; // フォールバック用
+  // 枠番（1〜10）に対応する色付き馬画像
+  const HORSE_FILE = (num) => `horse_${num}.png`;
+  const MIN_N = 5, MAX_N = 10;
+  const FPS = 60;
+
+  let N = 10;
+  let RACE_SECONDS = 15.0;
+  let STEPS = Math.floor(RACE_SECONDS * FPS);
+
+  let running = false;
+  let rafId = null;
+  let t0 = null;
+
+  let runners = [];
+
+  const SLOT_COUNT = 5;
+  let currentSlot = 1;
+
+  const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
+  const rand = ()=>Math.random();
+  const randInt = (a,b)=>Math.floor(rand()*(b-a+1))+a;
+
+  function escapeHtml(s){
+    return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+            .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  }
+
+  function loadJSON(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+  function saveJSON(key, value){
+    try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){}
+  }
+
+  function loadStore(){ return loadJSON(STORE_KEY, null); }
+  function saveStore(){
+    const data = { n:N, dur:RACE_SECONDS, title:$("titleInput").value || "", currentSlot };
+    saveJSON(STORE_KEY, data);
+  }
+
+  function loadSlots(){
+    const slots = loadJSON(SLOTS_KEY, {});
+    return slots && typeof slots === "object" ? slots : {};
+  }
+  function saveSlots(slots){ saveJSON(SLOTS_KEY, slots); }
+
+  function defaultName(i){
+    const A = ["疾走","影走","忍風","黒影","月光","電光","鉄壁","烈火","白刃","蒼天"];
+    const B = ["ノワール","カタラーナ","フラッグ","モルック","プリン","パクチー","ゲート","タワー","サモア","スプリント"];
+    return `${A[i%10]}${B[randInt(0,9)]}`;
+  }
+
+  function setTitleUI(v){
+    const title = (v && v.trim()) ? v.trim() : "馬忍者CUP";
+    $("titleView").textContent = title;
+    document.title = title;
+  }
+  function setSubline(){
+    $("subline").textContent = `${N}頭 / ${RACE_SECONDS.toFixed(0)}s`;
+    $("fieldLabel").textContent = String(N);
+    $("durLabel").textContent = String(RACE_SECONDS.toFixed(0));
+  }
+
+  function buildSlotBar(){
+    const bar = $("slotBar");
+    bar.innerHTML = "";
+    const slots = loadSlots();
+
+    for(let s=1; s<=SLOT_COUNT; s++){
+      const btn = document.createElement("button");
+      btn.className = "slotBtn";
+      btn.textContent = `R${s}`;
+      if (s === currentSlot) btn.classList.add("active");
+
+      const exists = !!slots[String(s)];
+      btn.title = exists ? "保存済み" : "空";
+      btn.style.opacity = exists ? "1" : ".65";
+
+      btn.addEventListener("click", () => {
+        currentSlot = s;
+        buildSlotBar();
+        saveStore();
+      });
+
+      bar.appendChild(btn);
+    }
+  }
+
+  function buildNameInputs(namesFromStore){
+    const grid = $("nameGrid");
+    grid.innerHTML = "";
+    for(let i=0;i<N;i++){
+      const row = document.createElement("div");
+      row.className = "nameRow";
+      row.innerHTML = `<div class="n">${i+1}</div><input placeholder="馬名" />`;
+      grid.appendChild(row);
+
+      const inp = row.querySelector("input");
+      inp.value = (namesFromStore && namesFromStore[i]) ? namesFromStore[i] : defaultName(i);
+
+      inp.addEventListener("input", () => {
+        const cell = document.querySelector(`.namePill[data-idx="${i}"]`);
+        if (cell) cell.textContent = inp.value.trim() || `馬${i+1}`;
+        saveStore();
+      });
+    }
+  }
+
+  function getNames(){
+    return [...$("nameGrid").querySelectorAll("input")]
+      .map((inp, i) => inp.value.trim() || `馬${i+1}`);
+  }
+
+  let iconCb = Date.now();
+  function iconSrc(num){
+    // 馬番に応じた色付き画像。1〜10が無ければ透過版にフォールバック
+    const file = (num >= 1 && num <= 10) ? HORSE_FILE(num) : ICON_FILE;
+    return `${file}?cb=${iconCb}`;
+  }
+
+  function runnerInner(num){
+    const src = iconSrc(num);
+    // 画像が見つからない場合は透過版、それも無ければSVG絵文字にフォールバック
+    return `
+      <div class="horseImg">
+        <img alt="" src="${src}"
+          onerror="this.onerror=function(){this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=%221.0%22?><svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2262%22 height=%2240%22><rect width=%2262%22 height=%2240%22 rx=%2212%22 fill=%22%23111%22/><text x=%2231%22 y=%2226%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23fff%22>🐎</text></svg>';};this.src='${ICON_FILE}?cb=${iconCb}';"/>
+      </div>
+    `;
+  }
+
+  function buildLanes(){
+    const lanes = $("lanes");
+    lanes.innerHTML = "";
+    runners = [];
+    const names = getNames();
+
+    for(let i=0;i<N;i++){
+      const lane = document.createElement("div");
+      lane.className = "lane";
+      const num = i + 1; // 1..N（最大10）
+      lane.innerHTML = `
+        <div class="bib"><div class="no frame-${num}">${num}</div></div>
+        <div class="rail">
+          <div class="finish"></div>
+          <div class="afterFinishPad"></div>
+          <div class="runner">${runnerInner(num)}</div>
+        </div>
+        <div class="nameCell">
+          <div class="namePill" data-idx="${i}">${escapeHtml(names[i] || `馬${i+1}`)}</div>
+        </div>
+      `;
+      lanes.appendChild(lane);
+
+      runners.push({
+        railEl: lane.querySelector(".rail"),
+        runnerEl: lane.querySelector(".runner"),
+        series: null,
+        lastX: 0,
+        finishTimeSec: null,
+
+        /* ===== 追加：落馬/停止の状態 ===== */
+        glitch: null,          // "fallen" | "stopped" | null
+        glitchStep: null,      // 発生ステップ
+        glitchApplied: false,  // UI適用済みか
+        stoppedAtX: null       // 停止位置の固定用
+      });
+    }
+  }
+
+  function smoothNoise(seed){
+    const knots = 22;
+    const vals = Array.from({length:knots}, (_,k) => {
+      const r = Math.sin((k+1)*911 + seed*137.9) * 43758.5453;
+      return (r - Math.floor(r));
+    });
+    const out = new Float32Array(STEPS+1);
+    const smoothstep = (t)=>t*t*(3-2*t);
+    const lerp=(a,b,t)=>a+(b-a)*t;
+    for(let s=0;s<=STEPS;s++){
+      const u = s / STEPS * (knots-1);
+      const i = Math.floor(u);
+      const f = smoothstep(u - i);
+      out[s] = lerp(vals[i], vals[Math.min(knots-1, i+1)], f);
+    }
+    return out;
+  }
+  function pulse(p,a,b){
+    if (p < a || p > b) return 0;
+    const t = (p - a) / (b - a);
+    return Math.sin(t * Math.PI);
+  }
+
+  // ★終盤で遅くならない＋ゴール後も一定速度で駆け抜ける
+  function generateRaceSeries(){
+    const over = 1.12;
+    const finishTimes = [];
+    const minEnd = RACE_SECONDS * 0.94;
+    for(let i=0;i<N;i++) finishTimes.push(minEnd + Math.random()*(RACE_SECONDS-minEnd));
+    finishTimes.sort((a,b)=>a-b);
+    finishTimes[finishTimes.length-1] = RACE_SECONDS;
+
+    const perm = [...Array(N).keys()].sort(()=>Math.random()-0.5);
+    const horseFinishT = Array(N).fill(RACE_SECONDS);
+    for(let rank=0; rank<N; rank++){
+      horseFinishT[perm[rank]] = finishTimes[rank];
+    }
+
+    const midPeak   = Array.from({length:N}, () => 0.38 + rand()*0.24);
+    const latePeak  = Array.from({length:N}, () => 0.78 + rand()*0.14);
+    const baseSkill = Array.from({length:N}, () => 0.97 + rand()*0.06);
+
+    const raw = Array.from({length:N}, () => new Float32Array(STEPS+1));
+
+    for(let i=0;i<N;i++){
+      const nz = smoothNoise(i+1);
+      let x = 0;
+
+      const midAmp    = 0.020 + rand()*0.020;
+      const lateAmp   = 0.020 + rand()*0.028;
+      const wobbleAmp = 0.012;
+
+      for(let s=0;s<=STEPS;s++){
+        const p = s / STEPS;
+
+        const base   = 0.032 * baseSkill[i];
+        const wobble = (nz[s]-0.5) * wobbleAmp;
+
+        const mid  = pulse(p, midPeak[i]-0.18, midPeak[i]+0.18) * midAmp;
+        const late = pulse(p, latePeak[i]-0.12, latePeak[i]+0.10) * lateAmp;
+
+        const pack = (p < 0.70) ? 0.006 : 0.003;
+        const v = clamp(base + wobble + mid + late + (rand()-0.5)*pack, 0.010, 0.110);
+        x += v;
+        raw[i][s] = x;
+      }
+    }
+
+    for(let s=0;s<=STEPS;s++){
+      let avg = 0;
+      for(let i=0;i<N;i++) avg += raw[i][s];
+      avg /= N;
+
+      const p = s / STEPS;
+      const k = (p < 0.72) ? 0.010 : 0.004;
+      for(let i=0;i<N;i++){
+        const diff = raw[i][s] - avg;
+        raw[i][s] -= diff * k;
+      }
+    }
+
+    for(let i=0;i<N;i++){
+      const fSec  = horseFinishT[i];
+      const fStep = clamp(Math.floor((fSec / RACE_SECONDS) * STEPS), 1, STEPS);
+      const denom = raw[i][fStep];
+
+      const series = new Float32Array(STEPS+1);
+
+      const remainSteps = Math.max(1, STEPS - fStep);
+      const perStep = (over - 1.0) / remainSteps;
+
+      for(let s=0;s<=STEPS;s++){
+        if (s <= fStep){
+          series[s] = clamp(raw[i][s] / denom, 0, 1.0);
+        } else {
+          series[s] = 1.0 + perStep * (s - fStep);
+        }
+      }
+
+      runners[i].series = series;
+      runners[i].finishTimeSec = null;
+      runners[i].lastX = 0;
+
+      // 追加：状態リセット
+      runners[i].glitch = null;
+      runners[i].glitchStep = null;
+      runners[i].glitchApplied = false;
+      runners[i].stoppedAtX = null;
+      runners[i].runnerEl.classList.remove("fallen","stopped");
+    }
+
+    /* =========================================================
+       ★追加：1頭だけ落馬・1頭だけ停止（他の設定は変えない）
+       - 落馬: 指定ステップ以降、進行を固定＋見た目を転倒
+       - 停止: 指定ステップ以降、進行を固定＋見た目を停止
+       ========================================================= */
+
+    if (N >= 2){
+      const fallenIdx = randInt(0, N-1);
+      let stopIdx = randInt(0, N-1);
+      while (stopIdx === fallenIdx) stopIdx = randInt(0, N-1);
+
+      // 発生タイミング（途中で起こす）
+      const fallenStep = randInt(Math.floor(STEPS*0.25), Math.floor(STEPS*0.78));
+      const stopStep   = randInt(Math.floor(STEPS*0.18), Math.floor(STEPS*0.70));
+
+      // 落馬
+      {
+        const r = runners[fallenIdx];
+        r.glitch = "fallen";
+        r.glitchStep = fallenStep;
+
+        const hold = r.series[fallenStep];
+        for(let s=fallenStep; s<=STEPS; s++){
+          r.series[s] = hold; // 以後進まない（落馬でストップ）
+        }
+      }
+
+      // 停止
+      {
+        const r = runners[stopIdx];
+        r.glitch = "stopped";
+        r.glitchStep = stopStep;
+
+        const hold = r.series[stopStep];
+        for(let s=stopStep; s<=STEPS; s++){
+          r.series[s] = hold; // 以後進まない（途中で止まる）
+        }
+      }
+    }
+  }
+
+  function setStatus(text){ $("statusPill").textContent = text; }
+
+  function stopRace(){
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    $("startBtn").disabled = false;
+    $("reseedBtn").disabled = false;
+    $("resetBtn").disabled = false;
+    $("settingsBtn").disabled = false;
+    $("fieldSize").disabled = false;
+    $("duration").disabled = false;
+  }
+
+  function updateUIAt(step, elapsedSec){
+    let bestI = 0;
+    let bestX = -1;
+
+    for(let i=0;i<N;i++){
+      const r = runners[i];
+      const x = r.series ? r.series[step] : 0;
+
+      if (r.finishTimeSec === null && x >= 1.0) r.finishTimeSec = elapsedSec;
+
+      const railW = r.railEl.clientWidth;
+      const runnerW = r.runnerEl.clientWidth;
+
+      const leftPad = 10;
+      const finishRight = 12;
+      const overPad = 44;
+      const maxX = Math.max(leftPad, railW - runnerW - finishRight + overPad);
+
+      const px = leftPad + (maxX - leftPad) * (x / 1.12);
+
+      const jiggle = Math.sin((step/5) + i*0.7) * 1.0;
+
+      // ★追加：落馬/停止の見た目適用（発生ステップになった瞬間に付与）
+      if (r.glitch && !r.glitchApplied && r.glitchStep !== null && step >= r.glitchStep){
+        r.glitchApplied = true;
+        if (r.glitch === "fallen") r.runnerEl.classList.add("fallen");
+        if (r.glitch === "stopped") r.runnerEl.classList.add("stopped");
+      }
+
+      // 通常 transform
+      r.runnerEl.style.setProperty("--tx", px + "px");
+      r.runnerEl.style.setProperty("--ty", "calc(-50% + " + jiggle + "px)");
+
+      // ★追加：落馬演出（転倒して沈む）
+      if (r.glitch === "fallen" && r.glitchApplied){
+        const sink = 16; // 少し沈める
+        const rot = 78;  // 倒れる角度
+        r.runnerEl.style.transform = `translate(${px}px, calc(-50% + ${jiggle + sink}px)) rotate(${rot}deg)`;
+      }
+      // ★追加：停止演出（微小揺れだけ）
+      else if (r.glitch === "stopped" && r.glitchApplied){
+        r.runnerEl.style.transform = `translate(${px}px, calc(-50% + ${jiggle*0.25}px))`;
+      }
+      else{
+        r.runnerEl.style.transform = `translate(${px}px, calc(-50% + ${jiggle}px))`;
+      }
+
+      const dx = x - r.lastX;
+      r.lastX = x;
+
+      const spd = clamp(dx * 85, 0.2, 2.2);
+      const runDur = clamp(0.22 - spd*0.065, 0.10, 0.22);
+
+      // ★追加：停止/落馬後はアニメを弱める（数値は他設定に影響しない範囲）
+      if ((r.glitch === "stopped" || r.glitch === "fallen") && r.glitchApplied){
+        r.runnerEl.style.setProperty("--runDur", "0.22s");
+      } else {
+        r.runnerEl.style.setProperty("--runDur", runDur.toFixed(3) + "s");
+      }
+
+      if (x > bestX){ bestX = x; bestI = i; }
+    }
+
+    const names = getNames();
+    $("leader").textContent = `#${bestI+1} ${names[bestI]}`;
+  }
+
+  function showResultOverlay(){
+    const ov = $("overlayDon");
+    ov.classList.add("show");
+
+    document.querySelectorAll(".runner").forEach(el => {
+      el.classList.remove("finishBounce");
+      void el.offsetWidth;
+      el.classList.add("finishBounce");
+      setTimeout(()=>el.classList.remove("finishBounce"), 520);
+    });
+
+    setTimeout(()=>ov.classList.remove("show"), 700);
+  }
+
+  function buildResultPanel(){
+    const names = getNames();
+    const arr = [...Array(N).keys()].map(i => ({ i, t: runners[i].finishTimeSec ?? (RACE_SECONDS + 999) }));
+    arr.sort((a,b) => (a.t - b.t) || (a.i - b.i));
+
+    $("resultMeta").textContent = `${N}頭 / ${RACE_SECONDS.toFixed(0)}秒`;
+
+    const list = $("resultList");
+    list.innerHTML = "";
+
+    for(let rank=0; rank<arr.length; rank++){
+      const i = arr[rank].i;
+      const t = arr[rank].t;
+
+      const item = document.createElement("div");
+      item.className = "resultItem";
+
+      const badgeCls = (rank===0) ? "badge rank1" : (rank===1 ? "badge rank2" : (rank===2 ? "badge rank3" : "badge"));
+
+      const horseSrc = `${HORSE_FILE(i+1)}?cb=${iconCb}`;
+      item.innerHTML = `
+        <div class="${badgeCls}">${rank+1}着</div>
+        <div class="resultHorse"><img alt="" src="${horseSrc}"
+          onerror="this.onerror=null;this.src='${ICON_FILE}?cb=${iconCb}';"/></div>
+        <div class="miniNo frame-${i+1}">#${i+1}</div>
+        <div class="rname">${escapeHtml(names[i])}</div>
+        <div class="rtime">${t.toFixed(2)}s</div>
+      `;
+      list.appendChild(item);
+    }
+
+    $("resultWrap").classList.add("show");
+    $("resultWrap").scrollIntoView({behavior:"smooth", block:"start"});
+    return arr[0].i;
+  }
+
+  function startRace(){
+    if (running) return;
+
+    $("resultWrap").classList.remove("show");
+
+    buildLanes();
+    generateRaceSeries();
+
+    running = true;
+    $("startBtn").disabled = true;
+    $("reseedBtn").disabled = true;
+    $("resetBtn").disabled = true;
+    $("settingsBtn").disabled = true;
+    $("fieldSize").disabled = true;
+    $("duration").disabled = true;
+
+    // ★ファンファーレ → レーススタートの順
+    setStatus("ファンファーレ");
+    playFanfare();
+
+    const fanfareDelayMs = isMuted ? 0 : Math.floor(FANFARE_LEN * 1000);
+    setTimeout(() => {
+      setStatus("走行中");
+      startGallop(); // 蹄音ループ開始
+      t0 = performance.now();
+
+      const tick = (now) => {
+        const elapsed = (now - t0) / 1000;
+        const remain = Math.max(0, RACE_SECONDS - elapsed);
+        $("remain").textContent = remain.toFixed(1);
+
+        const step = Math.min(STEPS, Math.floor((elapsed / RACE_SECONDS) * STEPS));
+        updateUIAt(step, elapsed);
+
+        if (elapsed < RACE_SECONDS){
+          rafId = requestAnimationFrame(tick);
+        } else {
+          finishRace();
+        }
+      };
+      rafId = requestAnimationFrame(tick);
+    }, fanfareDelayMs);
+  }
+
+  function finishRace(){
+    for (let i=0;i<N;i++){
+      if (runners[i].finishTimeSec === null) runners[i].finishTimeSec = RACE_SECONDS;
+    }
+
+    stopRace();
+    stopGallop(); // 蹄音停止
+    playCheer(); // ★ ゴールの瞬間に歓声
+    $("remain").textContent = "0.0";
+    updateUIAt(STEPS, RACE_SECONDS);
+
+    showResultOverlay();
+    const winner = buildResultPanel();
+
+    const names = getNames();
+    setStatus(`確定：#${winner+1} ${names[winner]}`);
+  }
+
+  function reseed(){
+    if (running) return;
+    buildLanes();
+    $("resultWrap").classList.remove("show");
+    $("leader").textContent = "—";
+    $("remain").textContent = RACE_SECONDS.toFixed(1);
+    setStatus("待機");
+  }
+
+  function resetAll(){
+    if (running) return;
+    buildLanes();
+    $("resultWrap").classList.remove("show");
+    $("leader").textContent = "—";
+    $("remain").textContent = RACE_SECONDS.toFixed(1);
+    setStatus("待機");
+  }
+
+  function applyN(n, storedNames){
+    N = clamp(n, MIN_N, MAX_N);
+    $("fieldSize").value = String(N);
+    buildNameInputs(storedNames);
+    setSubline();
+    buildLanes();
+    saveStore();
+  }
+
+  function applyDuration(sec){
+    RACE_SECONDS = sec;
+    $("duration").value = String(sec);
+    $("remain").textContent = sec.toFixed(1);
+    STEPS = Math.floor(RACE_SECONDS * FPS);
+    setSubline();
+    saveStore();
+  }
+
+  function openDrawer(){
+    $("drawerBack").classList.add("show");
+    $("drawer").classList.add("show");
+  }
+  function closeDrawer(){
+    $("drawerBack").classList.remove("show");
+    $("drawer").classList.remove("show");
+  }
+
+  /* ===== 5スロット保存/呼び出し ===== */
+  function saveToSlot(){
+    const slots = loadSlots();
+    slots[String(currentSlot)] = { n: N, names: getNames() };
+    saveJSON(SLOTS_KEY, slots);
+    buildSlotBar();
+  }
+  function loadFromSlot(){
+    const slots = loadSlots();
+    const slot = slots[String(currentSlot)];
+    if (!slot) return;
+
+    const targetN = clamp(parseInt(slot.n ?? N, 10), MIN_N, MAX_N);
+    $("fieldSize").value = String(targetN);
+    N = targetN;
+
+    buildNameInputs(slot.names || null);
+    setSubline();
+    buildLanes();
+    saveStore();
+    buildSlotBar();
+  }
+  function clearSlot(){
+    const slots = loadSlots();
+    delete slots[String(currentSlot)];
+    saveJSON(SLOTS_KEY, slots);
+    buildSlotBar();
+  }
+
+  $("saveSlotBtn").addEventListener("click", () => { if(!running) saveToSlot(); });
+  $("loadSlotBtn").addEventListener("click", () => { if(!running) loadFromSlot(); });
+  $("clearSlotBtn").addEventListener("click", () => { if(!running) clearSlot(); });
+
+  /* UI events */
+  $("startBtn").addEventListener("click", () => {
+    // クリック時にAudioContextを起動（ブラウザはユーザー操作が必要）
+    getAudioCtx();
+    saveStore(); closeDrawer(); startRace();
+  });
+  $("reseedBtn").addEventListener("click", () => { stopGallop(); closeDrawer(); reseed(); });
+  $("resetBtn").addEventListener("click", () => { stopGallop(); closeDrawer(); resetAll(); });
+
+  $("muteBtn").addEventListener("click", () => {
+    setMuted(!isMuted);
+  });
+  // 起動時のミュートボタン表示
+  setMuted(isMuted);
+
+  $("settingsBtn").addEventListener("click", () => openDrawer());
+  $("closeDrawerBtn").addEventListener("click", () => closeDrawer());
+  $("drawerBack").addEventListener("click", () => closeDrawer());
+
+  $("fieldSize").addEventListener("change", (e) => {
+    if (running) return;
+    applyN(parseInt(e.target.value,10), getNames());
+  });
+
+  $("duration").addEventListener("change", (e) => {
+    if (running) return;
+    applyDuration(parseFloat(e.target.value));
+  });
+
+  $("titleInput").addEventListener("input", (e) => {
+    setTitleUI(e.target.value || "");
+    saveStore();
+  });
+
+  $("reloadIconBtn").addEventListener("click", () => {
+    if (running) return;
+    iconCb = Date.now();
+    buildLanes();
+  });
+
+  /* slot bar init */
+  function buildSlotBar(){
+    const bar = $("slotBar");
+    bar.innerHTML = "";
+    const slots = loadSlots();
+    for(let s=1; s<=SLOT_COUNT; s++){
+      const btn = document.createElement("button");
+      btn.className = "slotBtn";
+      btn.textContent = `R${s}`;
+      if (s === currentSlot) btn.classList.add("active");
+      const exists = !!slots[String(s)];
+      btn.title = exists ? "保存済み" : "空";
+      btn.style.opacity = exists ? "1" : ".65";
+      btn.addEventListener("click", () => { currentSlot = s; buildSlotBar(); saveStore(); });
+      bar.appendChild(btn);
+    }
+  }
+
+  /* init */
+  const store = loadStore();
+  const initN = store?.n ?? 10;
+  const initDur = store?.dur ?? 15;
+  const initTitle = store?.title ?? "馬忍者CUP";
+  currentSlot = store?.currentSlot ?? 1;
+
+  $("titleInput").value = initTitle;
+  setTitleUI(initTitle);
+
+  applyDuration(parseFloat(initDur));
+  applyN(parseInt(initN,10), null);
+
+  buildSlotBar();
+
+  setStatus("待機");
+  $("leader").textContent = "—";
+  setSubline();
+  saveStore();
+})();
+</script>
+</body>
+</html>
