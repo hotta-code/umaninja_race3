@@ -381,6 +381,15 @@ button[disabled]{ opacity:.55; cursor:not-allowed; }
   letter-spacing:.06em;
   font-size: 16px;
 }
+.resultActions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.resultBackBtn{
+  border-color: rgba(255,210,74,.55);
+  background: rgba(255,210,74,.14);
+}
 .resultList{ display:flex; flex-direction:column; gap:6px; }
 .resultItem{
   display:grid;
@@ -614,15 +623,6 @@ button[disabled]{ opacity:.55; cursor:not-allowed; }
 }
 .runner.fallen .horseImg img{
   animation: none !important;
-}
-
-/* ===== 追加：停止（見た目だけ） ===== */
-.runner.stopped{
-  opacity: .92;
-}
-.runner.stopped::before{
-  opacity: .08;
-  animation-duration: .34s;
 }
 
 /* ===== レース中UI：先頭表示だけ残してヘッダーを隠す ===== */
@@ -963,7 +963,10 @@ body.verticalMode.resultSpotlight .rname{
       <div class="resultWrap" id="resultWrap">
         <div class="resultHead">
           <div class="ttl">着順確定！</div>
-          <div class="pill" id="resultMeta"></div>
+          <div class="resultActions">
+            <div class="pill" id="resultMeta"></div>
+            <button class="smallBtn resultBackBtn" id="resultBackBtn">戻る</button>
+          </div>
         </div>
         <div class="resultList" id="resultList"></div>
       </div>
@@ -1422,11 +1425,10 @@ body.verticalMode.resultSpotlight .rname{
         lastX: 0,
         finishTimeSec: null,
 
-        /* ===== 追加：落馬/停止の状態 ===== */
-        glitch: null,          // "fallen" | "stopped" | null
+        /* ===== 追加：落馬の状態 ===== */
+        glitch: null,          // "fallen" | null
         glitchStep: null,      // 発生ステップ
-        glitchApplied: false,  // UI適用済みか
-        stoppedAtX: null       // 停止位置の固定用
+        glitchApplied: false   // UI適用済みか
       });
     }
   }
@@ -1458,18 +1460,26 @@ body.verticalMode.resultSpotlight .rname{
   function generateRaceSeries(){
     const over = 1.12;
     const finishTimes = [];
-    const minEnd = RACE_SECONDS * 0.94;
+    const minEnd = RACE_SECONDS * 0.88;
     for(let i=0;i<N;i++) finishTimes.push(minEnd + Math.random()*(RACE_SECONDS-minEnd));
     finishTimes.sort((a,b)=>a-b);
 
-    /* ★競り合い演出：上位3頭のゴールタイムを、勝者ゴール時刻の前後
-       わずかな範囲（最大0.20秒）に詰めて常に接戦にする */
-    if (N >= 3){
-      const winnerT = finishTimes[0];
-      const gap1 = 0.04 + Math.random() * 0.08; // 1着→2着：0.04〜0.12秒
-      const gap2 = 0.05 + Math.random() * 0.10; // 2着→3着：0.05〜0.15秒
-      finishTimes[1] = Math.min(winnerT + gap1, RACE_SECONDS - 0.01);
-      finishTimes[2] = Math.min(winnerT + gap1 + gap2, RACE_SECONDS - 0.01);
+    /* ★ゴール時に着差が目で分かるよう、上位馬の間隔を確保する */
+    if (N >= 2){
+      const winnerT = Math.min(finishTimes[0], RACE_SECONDS * 0.90);
+      const gap1 = 0.25 + Math.random() * 0.20; // 1着→2着：0.25〜0.45秒
+      finishTimes[0] = winnerT;
+      finishTimes[1] = winnerT + gap1;
+
+      if (N >= 3){
+        const gap2 = 0.20 + Math.random() * 0.15; // 2着→3着：0.20〜0.35秒
+        finishTimes[2] = finishTimes[1] + gap2;
+
+        // 4着以下も順番が逆転しないよう、最低0.08秒の間隔を空ける
+        for(let rank=3; rank<N-1; rank++){
+          finishTimes[rank] = Math.max(finishTimes[rank], finishTimes[rank-1] + 0.08);
+        }
+      }
     }
     finishTimes[finishTimes.length-1] = RACE_SECONDS;
 
@@ -1548,24 +1558,19 @@ body.verticalMode.resultSpotlight .rname{
       runners[i].glitch = null;
       runners[i].glitchStep = null;
       runners[i].glitchApplied = false;
-      runners[i].stoppedAtX = null;
-      runners[i].runnerEl.classList.remove("fallen","stopped");
+      runners[i].runnerEl.classList.remove("fallen");
     }
 
     /* =========================================================
-       ★追加：1頭だけ落馬・1頭だけ停止（他の設定は変えない）
+       ★追加：1頭だけ落馬（他の設定は変えない）
        - 落馬: 指定ステップ以降、進行を固定＋見た目を転倒
-       - 停止: 指定ステップ以降、進行を固定＋見た目を停止
        ========================================================= */
 
-    if (N >= 2){
+    if (N >= 1){
       const fallenIdx = randInt(0, N-1);
-      let stopIdx = randInt(0, N-1);
-      while (stopIdx === fallenIdx) stopIdx = randInt(0, N-1);
 
       // 発生タイミング（途中で起こす）
       const fallenStep = randInt(Math.floor(STEPS*0.25), Math.floor(STEPS*0.78));
-      const stopStep   = randInt(Math.floor(STEPS*0.18), Math.floor(STEPS*0.70));
 
       // 落馬
       {
@@ -1579,17 +1584,6 @@ body.verticalMode.resultSpotlight .rname{
         }
       }
 
-      // 停止
-      {
-        const r = runners[stopIdx];
-        r.glitch = "stopped";
-        r.glitchStep = stopStep;
-
-        const hold = r.series[stopStep];
-        for(let s=stopStep; s<=STEPS; s++){
-          r.series[s] = hold; // 以後進まない（途中で止まる）
-        }
-      }
     }
   }
 
@@ -1644,11 +1638,10 @@ body.verticalMode.resultSpotlight .rname{
 
       const jiggle = Math.sin((step/5) + i*0.7) * 1.0;
 
-      // ★追加：落馬/停止の見た目適用（発生ステップになった瞬間に付与）
+      // ★追加：落馬の見た目適用（発生ステップになった瞬間に付与）
       if (r.glitch && !r.glitchApplied && r.glitchStep !== null && step >= r.glitchStep){
         r.glitchApplied = true;
         if (r.glitch === "fallen") r.runnerEl.classList.add("fallen");
-        if (r.glitch === "stopped") r.runnerEl.classList.add("stopped");
       }
 
       // 通常 transform
@@ -1661,10 +1654,6 @@ body.verticalMode.resultSpotlight .rname{
         const rot = 78;  // 倒れる角度
         r.runnerEl.style.transform = `translate(${px}px, calc(-50% + ${jiggle + sink}px)) rotate(${rot}deg)`;
       }
-      // ★追加：停止演出（微小揺れだけ）
-      else if (r.glitch === "stopped" && r.glitchApplied){
-        r.runnerEl.style.transform = `translate(${px}px, calc(-50% + ${jiggle*0.25}px))`;
-      }
       else{
         r.runnerEl.style.transform = `translate(${px}px, calc(-50% + ${jiggle}px))`;
       }
@@ -1675,8 +1664,8 @@ body.verticalMode.resultSpotlight .rname{
       const spd = clamp(dx * 85, 0.2, 2.2);
       const runDur = clamp(0.22 - spd*0.065, 0.10, 0.22);
 
-      // ★追加：停止/落馬後はアニメを弱める（数値は他設定に影響しない範囲）
-      if ((r.glitch === "stopped" || r.glitch === "fallen") && r.glitchApplied){
+      // ★追加：落馬後はアニメを弱める（数値は他設定に影響しない範囲）
+      if (r.glitch === "fallen" && r.glitchApplied){
         r.runnerEl.style.setProperty("--runDur", "0.22s");
       } else {
         r.runnerEl.style.setProperty("--runDur", runDur.toFixed(3) + "s");
@@ -1916,6 +1905,12 @@ body.verticalMode.resultSpotlight .rname{
   });
   $("reseedBtn").addEventListener("click", () => { stopGallop(); closeDrawer(); reseed(); });
   $("resetBtn").addEventListener("click", () => { stopGallop(); closeDrawer(); resetAll(); });
+  $("resultBackBtn").addEventListener("click", () => {
+    stopGallop();
+    clearResultSpotlight();
+    resetAll();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
 
   const warmAudio = () => { unlockAudio(); };
   document.addEventListener("pointerdown", warmAudio, { passive: true });
