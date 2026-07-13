@@ -881,6 +881,35 @@ body.verticalMode.resultSpotlight .rname{
   .finish{ width: 6px; right: 8px; }
   .afterFinishPad{ right: -36px; width: 36px; }
 
+  /* 縦型モードの指定をスマホ寸法で上書きし、10頭を1画面に収める */
+  body.verticalMode .wrap{ padding: 4px; gap: 4px; }
+  body.verticalMode .header{ padding: 4px 6px; }
+  body.verticalMode .hud{ margin-top: 4px; gap: 4px; }
+  body.verticalMode .hud .timer,
+  body.verticalMode .hud .leaderItem{ padding: 3px 4px; }
+  body.verticalMode .track{ padding: 3px; }
+  body.verticalMode .lanes{ padding: 2px; }
+  body.verticalMode .lane{
+    margin: 0;
+    padding: 0 3px;
+    grid-template-columns: 32px 1fr;
+    gap: 3px;
+  }
+  body.verticalMode .bib .no{
+    width: 30px;
+    height: 23px;
+    font-size: 11px;
+    border-radius: 7px;
+  }
+  body.verticalMode .rail{ height: 34px; }
+  body.verticalMode .runner,
+  body.verticalMode .horseImg{ width: 52px; height: 34px; }
+  body.verticalMode .laneWatermark{
+    left: 8px;
+    right: 16px;
+    font-size: clamp(12px, 4vw, 16px);
+  }
+
   /* 設定ドロワー：画面いっぱいに */
   .drawer{
     right: 6px; left: 6px; top: 6px; bottom: 6px;
@@ -901,6 +930,43 @@ body.verticalMode.resultSpotlight .rname{
   .badge, .miniNo{ height: 30px; font-size: 12px; border-radius: 10px; }
   .rname{ font-size: 13px; }
   .rtime{ font-size: 12px; }
+
+  /* 縦型の結果画面でも10頭すべてをスクロールなしで表示 */
+  body.verticalMode.resultSpotlight .resultWrap{
+    top: 6px;
+    bottom: 36px;
+    max-height: none;
+    padding: 6px;
+  }
+  body.verticalMode.resultSpotlight .resultHead{ margin-bottom: 4px; }
+  body.verticalMode.resultSpotlight .resultHead .ttl{ font-size: 15px; }
+  body.verticalMode.resultSpotlight .resultActions{ gap: 4px; }
+  body.verticalMode.resultSpotlight .resultActions .pill{
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+  body.verticalMode.resultSpotlight .resultBackBtn{
+    min-height: 26px;
+    padding: 3px 7px;
+    font-size: 10px;
+  }
+  body.verticalMode.resultSpotlight .resultList{ gap: 2px; }
+  body.verticalMode.resultSpotlight .resultItem{
+    grid-template-columns: 40px 28px 32px 1fr 48px;
+    gap: 3px;
+    padding: 2px 3px;
+    border-radius: 8px;
+  }
+  body.verticalMode.resultSpotlight .resultItem:nth-child(n+6){ display: grid; }
+  body.verticalMode.resultSpotlight .resultHorse{ width: 28px; height: 22px; }
+  body.verticalMode.resultSpotlight .badge,
+  body.verticalMode.resultSpotlight .miniNo{
+    height: 22px;
+    font-size: 10px;
+    border-radius: 7px;
+  }
+  body.verticalMode.resultSpotlight .rname,
+  body.verticalMode.resultSpotlight .rtime{ font-size: 10px; }
 }
 
 /* 極小スマホ（〜380px）：さらに詰める */
@@ -917,6 +983,9 @@ body.verticalMode.resultSpotlight .rname{
   }
   .runner{ width: 46px; height: 30px; }
   .horseImg{ width: 46px; height: 30px; }
+  body.verticalMode .rail{ height: 29px; }
+  body.verticalMode .runner,
+  body.verticalMode .horseImg{ width: 46px; height: 29px; }
 }
 </style>
 </head>
@@ -1696,12 +1765,9 @@ body.verticalMode.resultSpotlight .rname{
 
   function showResultSpotlight(){
     if (resultSpotlightTimer) clearTimeout(resultSpotlightTimer);
+    resultSpotlightTimer = null;
     if (!document.body.classList.contains("verticalMode")) return;
     document.body.classList.add("resultSpotlight");
-    resultSpotlightTimer = setTimeout(() => {
-      document.body.classList.remove("resultSpotlight");
-      resultSpotlightTimer = null;
-    }, 5000);
   }
 
   function clearResultSpotlight(){
