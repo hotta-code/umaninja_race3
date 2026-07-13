@@ -773,8 +773,10 @@ body.verticalMode .resultWrap.show{
   border-radius: 999px;
   font-size: 11px;
   letter-spacing: 0;
-  opacity: .72;
-  background: rgba(0,0,0,.42);
+  opacity: .92;
+  background: rgba(0,0,0,.68);
+  border-color: rgba(255,255,255,.32);
+  backdrop-filter: blur(8px);
 }
 body.verticalMode .recordExitBtn{
   display: block;
@@ -845,6 +847,22 @@ body.verticalMode.resultSpotlight .rname{
   }
   .hud{ gap: 8px; font-size: 11px; }
   .hud .pill{ padding: 4px 8px; font-size: 11px; }
+
+  /* スマホでは録画画面への切替を常に押せる固定ボタンにする */
+  body:not(.verticalMode) #verticalBtn{
+    position: fixed;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 50;
+    min-height: 48px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    color: #0b0f14;
+    background: linear-gradient(135deg, #ffd24a, #ff9f2f);
+    border-color: rgba(255,255,255,.8);
+    box-shadow: 0 10px 30px rgba(0,0,0,.42), 0 0 0 3px rgba(255,210,74,.18);
+    font-size: 13px;
+  }
 
   /* ★レーンエリア：固定サイズで10頭が確実に収まるように */
   .lanes{
@@ -1009,7 +1027,7 @@ body.verticalMode.resultSpotlight .rname{
             <button id="reseedBtn">抽選</button>
             <button id="resetBtn">RESET</button>
             <button id="muteBtn" title="サウンドON/OFF">🔊</button>
-            <button id="verticalBtn" title="9:16 録画モード切替">📱9:16</button>
+            <button id="verticalBtn" title="SNS向け9:16録画画面に切り替え">📱 録画用画面</button>
             <button id="settingsBtn">設定</button>
           </div>
         </div>
@@ -1043,7 +1061,7 @@ body.verticalMode.resultSpotlight .rname{
     </div>
   </div>
 
-<button class="recordExitBtn" id="recordExitBtn">録画モード解除</button>
+<button class="recordExitBtn" id="recordExitBtn">通常画面に戻る</button>
 
 <div class="overlayDon" id="overlayDon"><div class="donText">結果発表！</div></div>
 
