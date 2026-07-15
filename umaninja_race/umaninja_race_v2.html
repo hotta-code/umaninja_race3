@@ -450,6 +450,9 @@ button[disabled]{ opacity:.55; cursor:not-allowed; }
   font-weight: 900;
   color: rgba(255,255,255,.88);
 }
+.rtime.fallenResult{
+  color: #ff8c8c;
+}
 
 /* overlay */
 .overlayDon{
@@ -1731,11 +1734,12 @@ body.verticalMode.racing .horseImg{
     }
 
     /* =========================================================
-       ★追加：1頭だけ落馬（他の設定は変えない）
+       ★追加：8頭以上のレースで1頭だけ落馬
        - 落馬: 指定ステップ以降、進行を固定＋見た目を転倒
+       - 7頭以下: 落馬なし
        ========================================================= */
 
-    if (N >= 1){
+    if (N >= 8){
       const fallenIdx = randInt(0, N-1);
 
       // 発生タイミング（途中で起こす）
@@ -1878,8 +1882,16 @@ body.verticalMode.racing .horseImg{
 
   function buildResultPanel(){
     const names = getNames();
-    const arr = [...Array(N).keys()].map(i => ({ i, t: runners[i].finishTimeSec ?? (RACE_SECONDS + 999) }));
-    arr.sort((a,b) => (a.t - b.t) || (a.i - b.i));
+    const arr = [...Array(N).keys()].map(i => ({
+      i,
+      t: runners[i].finishTimeSec ?? (RACE_SECONDS + 999),
+      fallen: runners[i].glitch === "fallen"
+    }));
+    arr.sort((a,b) =>
+      (Number(a.fallen) - Number(b.fallen)) ||
+      (a.t - b.t) ||
+      (a.i - b.i)
+    );
 
     $("resultMeta").textContent = `${N}頭 / ${RACE_SECONDS.toFixed(0)}秒`;
 
@@ -1889,6 +1901,8 @@ body.verticalMode.racing .horseImg{
     for(let rank=0; rank<arr.length; rank++){
       const i = arr[rank].i;
       const t = arr[rank].t;
+      const fallen = arr[rank].fallen;
+      const resultTime = fallen ? "落馬" : `${t.toFixed(2)}s`;
 
       const item = document.createElement("div");
       item.className = "resultItem";
@@ -1902,7 +1916,7 @@ body.verticalMode.racing .horseImg{
           onerror="this.onerror=null;this.src='${ICON_FILE}?cb=${iconCb}';"/></div>
         <div class="miniNo frame-${i+1}">#${i+1}</div>
         <div class="rname">${escapeHtml(names[i])}</div>
-        <div class="rtime">${t.toFixed(2)}s</div>
+        <div class="rtime${fallen ? " fallenResult" : ""}">${resultTime}</div>
       `;
       list.appendChild(item);
     }
