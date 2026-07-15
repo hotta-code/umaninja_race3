@@ -766,20 +766,29 @@ body.verticalMode .resultWrap.show{
 }
 .recordExitBtn{
   position: fixed;
-  left: 50%;
+  left: auto;
+  right: max(8px, env(safe-area-inset-right));
   bottom: max(8px, env(safe-area-inset-bottom));
-  transform: translateX(-50%);
+  transform: none;
   z-index: 20;
   display: none;
-  min-height: 28px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 11px;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 15px;
+  line-height: 1;
   letter-spacing: 0;
-  opacity: .92;
-  background: rgba(0,0,0,.68);
-  border-color: rgba(255,255,255,.32);
-  backdrop-filter: blur(8px);
+  opacity: .28;
+  background: rgba(0,0,0,.28);
+  border-color: rgba(255,255,255,.18);
+  backdrop-filter: blur(4px);
+}
+.recordExitBtn:hover,
+.recordExitBtn:focus-visible{
+  opacity: .82;
+  background: rgba(0,0,0,.62);
 }
 body.verticalMode .recordExitBtn{
   display: block;
@@ -1167,7 +1176,7 @@ body.verticalMode.racing .horseImg{
   </div>
 
 <button class="recordStartBtn" id="recordStartBtn">START</button>
-<button class="recordExitBtn" id="recordExitBtn">通常画面に戻る</button>
+<button class="recordExitBtn" id="recordExitBtn" title="通常画面に戻る" aria-label="通常画面に戻る">↩</button>
 
 <div class="overlayDon" id="overlayDon"><div class="donText">結果発表！</div></div>
 
