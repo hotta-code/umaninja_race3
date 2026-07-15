@@ -784,6 +784,27 @@ body.verticalMode .resultWrap.show{
 body.verticalMode .recordExitBtn{
   display: block;
 }
+.recordStartBtn{
+  position: fixed;
+  left: 50%;
+  bottom: max(54px, calc(env(safe-area-inset-bottom) + 46px));
+  transform: translateX(-50%);
+  z-index: 21;
+  display: none;
+  min-width: 150px;
+  min-height: 50px;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-size: 18px;
+  letter-spacing: .12em;
+  color: #fff;
+  background: linear-gradient(135deg, #ff4b4b, #c91432);
+  border-color: rgba(255,255,255,.72);
+  box-shadow: 0 12px 34px rgba(0,0,0,.5), 0 0 0 4px rgba(255,59,59,.2);
+}
+body.verticalMode:not(.racing):not(.resultSpotlight) .recordStartBtn{
+  display: block;
+}
 body.verticalMode.resultSpotlight .resultWrap{
   position: absolute;
   left: 8px;
@@ -1145,6 +1166,7 @@ body.verticalMode.racing .horseImg{
     </div>
   </div>
 
+<button class="recordStartBtn" id="recordStartBtn">START</button>
 <button class="recordExitBtn" id="recordExitBtn">通常画面に戻る</button>
 
 <div class="overlayDon" id="overlayDon"><div class="donText">結果発表！</div></div>
@@ -2129,8 +2151,15 @@ body.verticalMode.racing .horseImg{
       unlockAudio();
       saveStore();
       closeDrawer();
-      startRace();
+      resetAll();
     }
+  });
+  $("recordStartBtn").addEventListener("click", () => {
+    if (running) return;
+    unlockAudio();
+    saveStore();
+    closeDrawer();
+    startRace();
   });
   $("recordExitBtn").addEventListener("click", () => {
     setVerticalMode(false);
