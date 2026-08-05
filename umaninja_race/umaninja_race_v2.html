@@ -1552,7 +1552,31 @@ body.verticalMode.resultSpotlight .rname{
       runners[i].runnerEl.classList.remove("fallen","stopped");
     }
 
-    
+    /* =========================================================
+       ★追加：1頭だけ落馬・1頭だけ停止（他の設定は変えない）
+       - 落馬: 指定ステップ以降、進行を固定＋見た目を転倒
+       - 停止: 指定ステップ以降、進行を固定＋見た目を停止
+       ========================================================= */
+
+    if (false && N >= 2){
+      const fallenIdx = randInt(0, N-1);
+      let stopIdx = randInt(0, N-1);
+      while (stopIdx === fallenIdx) stopIdx = randInt(0, N-1);
+
+      // 発生タイミング（途中で起こす）
+      const fallenStep = randInt(Math.floor(STEPS*0.25), Math.floor(STEPS*0.78));
+      const stopStep   = randInt(Math.floor(STEPS*0.18), Math.floor(STEPS*0.70));
+
+      // 落馬
+      {
+        const r = runners[fallenIdx];
+        r.glitch = "fallen";
+        r.glitchStep = fallenStep;
+
+        const hold = r.series[fallenStep];
+        for(let s=fallenStep; s<=STEPS; s++){
+          r.series[s] = hold; // 以後進まない（落馬でストップ）
+        }
       }
 
       // 停止
